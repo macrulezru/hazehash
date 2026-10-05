@@ -40,4 +40,5 @@ pnpm tune          # parameter sweeps
 ```
 
 Core scripts (`pnpm --filter hazehash <script>`): `size` (bundle sizes), `fuzz`, `make-vectors`
-(frozen conformance vectors; refuses to overwrite). Requires Node.js 20+ and pnpm.
+(frozen conformance vectors; refuses to overwrite). Building needs Node.js 22+ and pnpm; the
+published packages support Node.js 20+.

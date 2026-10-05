@@ -2,10 +2,12 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [master]
   pull_request:
 
 jobs:
+  # The build tooling (tsdown) needs Node 22; the packages themselves support Node 20+, so the
+  # tests of the built output run on both versions.
   test:
     runs-on: ubuntu-latest
     strategy:
@@ -16,13 +18,16 @@ jobs:
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node }}
+          node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm lint
-      - run: pnpm typecheck
-      - run: pnpm test
+      - run: pnpm typecheck # also builds all packages
       - run: pnpm --filter hazehash size
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - run: pnpm test:only
 
   e2e:
     runs-on: ubuntu-latest

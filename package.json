@@ -4,7 +4,7 @@
   "type": "module",
   "packageManager": "pnpm@9.15.9",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
     "build": "pnpm -r --filter \"./packages/*\" build",
@@ -18,7 +18,8 @@
     "e2e": "pnpm build && pnpm --filter hazehash-e2e test && pnpm --filter hazehash-e2e-nuxt test",
     "ablate": "pnpm --filter hazehash-bench ablate",
     "tune": "pnpm --filter hazehash-bench tune",
-    "demo": "pnpm build && pnpm --filter hazehash-demo dev"
+    "demo": "pnpm build && pnpm --filter hazehash-demo dev",
+    "test:only": "pnpm -r --filter \"./packages/*\" test"
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.0",
@@ -29,6 +30,7 @@
     "tsdown": "latest",
     "typescript": "^5.6.0",
     "typescript-eslint": "^8.0.0",
+    "unrun": "^0.3.1",
     "vitest": "^2.1.0"
   }
 }
