@@ -12,10 +12,13 @@ function sources(dir: string): string[] {
 }
 
 /** Files allowed to touch the DOM, Node or optional dependencies. */
-const PLATFORM_FILES = ['canvas.ts', 'node.ts', 'cli.ts'];
+const PLATFORM_FILES = ['canvas.ts', 'node.ts', 'sharp.ts', 'cli.ts'];
 
 describe('core purity', () => {
-  const core = sources(SRC).filter((f) => !PLATFORM_FILES.some((p) => f.endsWith(p)));
+  const core = sources(SRC).filter(
+    (f) =>
+      !PLATFORM_FILES.some((p) => f.endsWith(p)) && !f.replace(/\\/g, '/').includes('/src/cli/'),
+  );
 
   it('finds the core files', () => {
     expect(core.length).toBeGreaterThan(10);

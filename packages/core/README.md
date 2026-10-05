@@ -40,7 +40,7 @@ import { encodeFileToString } from 'hazehash/node'; // needs: npm i sharp
 const hash = await encodeFileToString('photo.jpg', { budget: 24 });
 ```
 
-or the command line: `npx hazehash encode photo.jpg --budget 24`.
+or the [command line](#command-line): `npx hazehash encode photo.jpg --budget 24`.
 
 Draw into a canvas:
 
@@ -52,13 +52,13 @@ drawToCanvas(hash, document.querySelector('canvas')!);
 
 ## Entry points
 
-| Import            | Contents                                                            |
-| ----------------- | ------------------------------------------------------------------- |
-| `hazehash`        | `decode`, `getAspectRatio`, `getAverageColor`, `toBytes`, errors    |
-| `hazehash/decode` | same as above                                                       |
-| `hazehash/encode` | `encode`, `encodeToString`, `toBase64Url`, errors                   |
-| `hazehash/canvas` | `drawToCanvas(hash, canvas, options)`, `toImageData(hash, options)` |
-| `hazehash/node`   | `encodeFile`, `encodeFileToString` (needs optional peer `sharp`)    |
+| Import            | Contents                                                                               |
+| ----------------- | -------------------------------------------------------------------------------------- |
+| `hazehash`        | `decode`, `getAspectRatio`, `getAverageColor`, `toBytes`, errors                       |
+| `hazehash/decode` | same as above                                                                          |
+| `hazehash/encode` | `encode`, `encodeToString`, `toBase64Url`, errors                                      |
+| `hazehash/canvas` | `drawToCanvas(hash, canvas, options)`, `toImageData(hash, options)`                    |
+| `hazehash/node`   | `encodeFile`, `encodeFileToString`, `encodeFileDetailed` (needs optional peer `sharp`) |
 
 The decoder entry points do not pull in the encoder, so browsers only download what they use.
 
@@ -118,10 +118,47 @@ All failures are `PlaceholderError` with a `code`: `InvalidInput`, `BudgetTooSma
 `InvalidLength`, `InvalidCharacter`, `UnsupportedVersion` (decoder). A malformed hash never hangs
 or crashes the decoder: it either decodes or throws one of these.
 
+## Command line
+
+The package installs a `hazehash` command (it needs the optional package `sharp` to read images):
+
+```sh
+npm install --save-dev hazehash sharp
+npx hazehash --help
+```
+
+| Command                  | What it does                                                               |
+| ------------------------ | -------------------------------------------------------------------------- |
+| `hazehash encode <in…>`  | Hashes of image files, folders, globs (`"photos/**/*.jpg"`) or stdin (`-`) |
+| `hazehash decode <hash>` | Draws the preview in the terminal, or saves it with `-o preview.png`       |
+| `hazehash info <hash>`   | Explains what a hash contains: size, aspect ratio, grids, average colour   |
+
+```sh
+hazehash encode photo.jpg                        # prints just the hash, handy in scripts
+hazehash encode ./images -r --budget 24          # a coloured table for a folder
+hazehash encode "images/**/*.jpg" -f json -o hashes.json
+cat photo.jpg | hazehash encode -
+hazehash decode Ef90QP3dAP7_773v3y-6uqjYQIqBEaRAVVEpEA
+```
+
+Main options of `encode`: `-b, --budget` (bytes, default 28), `-p, --profile`
+(`fast`/`default`/`high`), `--alpha`, `-r, --recursive`, `-f, --format text|json|csv`,
+`--details` (sizes in json/csv), `--hex`, `-o, --output`, `-q, --quiet`. Every command has
+`--help` with the full list and explanations.
+
+- In a terminal the result is a coloured table with image and hash sizes, the average colour and a
+  summary; when the output is piped it is plain text, so scripts can use it directly.
+- Colours follow `NO_COLOR`, `FORCE_COLOR`, `--color` and `--no-color`.
+- Exit codes: `0` success, `1` at least one image failed (the others are still written), `2` a mistake
+  in the command line.
+
+The same encoder is available from code as `encodeFileDetailed(pathOrBuffer, options)`, which also
+returns the image size.
+
 ## Notes
 
-- Input is assumed to be sRGB. ICC profiles and EXIF orientation are ignored; convert beforehand
-  (the Node helper converts to sRGB through `sharp`).
+- Input is assumed to be sRGB; the core ignores ICC profiles and EXIF orientation. The Node helper
+  and the command line convert to sRGB and apply the EXIF orientation through `sharp`.
 - Animated images: pass a single frame.
 - A truncated hash is still valid and decodes with less detail.
 - Version 1 decoding is frozen: a hash decodes the same way in every release.
