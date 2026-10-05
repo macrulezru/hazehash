@@ -1,0 +1,13 @@
+{
+  "name": "hazehash-examples",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "hashes": "node node-folder.mjs",
+    "serve": "node serve.mjs"
+  },
+  "dependencies": {
+    "hazehash": "workspace:*",
+    "sharp": "^0.34.0"
+  }
+}

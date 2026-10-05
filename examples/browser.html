@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>HazeHash in the browser</title>
+    <style>
+      body {
+        font:
+          16px/1.5 system-ui,
+          sans-serif;
+        max-width: 640px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+      }
+      .frame {
+        position: relative;
+        overflow: hidden;
+        border-radius: 8px;
+      }
+      canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        inset: 0;
+      }
+      code {
+        word-break: break-all;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>HazeHash placeholder</h1>
+    <p>Hash: <code id="hash"></code></p>
+    <div class="frame" id="frame"><canvas id="canvas"></canvas></div>
+    <script type="module">
+      // Run `node examples/serve.mjs` from the repository root after `pnpm build`.
+      import { getAspectRatio, getAverageColor } from '../packages/core/dist/index.js';
+      import { drawToCanvas } from '../packages/core/dist/canvas.js';
+      import { encodeToString } from '../packages/core/dist/encode.js';
+
+      // Build a demo image in the page itself, so no file is needed.
+      const w = 160,
+        h = 100;
+      const c = document.createElement('canvas');
+      c.width = w;
+      c.height = h;
+      const ctx = c.getContext('2d');
+      const g = ctx.createLinearGradient(0, 0, w, h);
+      g.addColorStop(0, '#ff6b6b');
+      g.addColorStop(0.5, '#feca57');
+      g.addColorStop(1, '#1dd1a1');
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, w, h);
+      ctx.fillStyle = '#222f3e';
+      ctx.beginPath();
+      ctx.arc(110, 40, 28, 0, Math.PI * 2);
+      ctx.fill();
+
+      const hash = encodeToString(ctx.getImageData(0, 0, w, h));
+      document.getElementById('hash').textContent = `${hash} (${hash.length} characters)`;
+
+      const frame = document.getElementById('frame');
+      const { r, g: green, b } = getAverageColor(hash);
+      frame.style.backgroundColor = `rgb(${r}, ${green}, ${b})`; // what the server would render
+      frame.style.aspectRatio = String(getAspectRatio(hash));
+      drawToCanvas(hash, document.getElementById('canvas'));
+    </script>
+  </body>
+</html>

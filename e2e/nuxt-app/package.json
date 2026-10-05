@@ -1,0 +1,15 @@
+{
+  "name": "hazehash-e2e-nuxt",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "test": "node ssr.mjs"
+  },
+  "dependencies": {
+    "hazehash-nuxt": "workspace:*",
+    "nuxt": "^3.13.0",
+    "sharp": "^0.34.0",
+    "vue": "^3.5.0"
+  }
+}
