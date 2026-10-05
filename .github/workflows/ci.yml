@@ -1,0 +1,112 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+jobs:
+  # The build tooling (tsdown) needs Node 22; the packages themselves support Node 20+, so the
+  # tests of the built output run on both versions.
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [20, 22]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck # also builds all packages
+      - run: pnpm --filter hazehash size
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - run: pnpm test:only
+
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - run: pnpm --filter hazehash-e2e exec playwright install --with-deps chromium firefox webkit
+      - run: pnpm --filter hazehash-e2e test
+      - run: pnpm --filter hazehash-e2e-nuxt test
+      - run: pnpm --filter hazehash-demo build
+      - run: pnpm --filter hazehash-e2e test:demo
+
+  # Reduced benchmark on 50 images: mean error must not grow by more than 2% against the base
+  # branch. It is skipped while the base branch has no benchmark to compare with (the first PR).
+  bench:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: head
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: base
+      - name: Check that the base branch has a benchmark
+        id: check
+        run: |
+          if [ -f base/bench/package.json ]; then
+            echo "has_bench=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_bench=false" >> "$GITHUB_OUTPUT"
+            echo "Base branch has no benchmark: skipping the regression check."
+          fi
+      - if: steps.check.outputs.has_bench == 'true'
+        uses: pnpm/action-setup@v4
+        with:
+          package_json_file: head/package.json
+      - if: steps.check.outputs.has_bench == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - if: steps.check.outputs.has_bench == 'true'
+        uses: actions/cache@v4
+        with:
+          path: head/test-images
+          key: test-images-${{ hashFiles('head/scripts/fetch-test-images.mjs') }}
+      - name: Fetch the image set (resumable, cached)
+        if: steps.check.outputs.has_bench == 'true'
+        working-directory: head
+        run: node scripts/fetch-test-images.mjs
+      - if: steps.check.outputs.has_bench == 'true'
+        run: pnpm install --frozen-lockfile
+        working-directory: head
+      - if: steps.check.outputs.has_bench == 'true'
+        run: pnpm install --frozen-lockfile
+        working-directory: base
+      - name: Benchmark head
+        if: steps.check.outputs.has_bench == 'true'
+        working-directory: head
+        run: pnpm bench --limit 50 --seed 1 --budgets 28 --out "$GITHUB_WORKSPACE/out-head"
+      - name: Benchmark base
+        if: steps.check.outputs.has_bench == 'true'
+        working-directory: base
+        run: pnpm bench --limit 50 --seed 1 --budgets 28 --images "$GITHUB_WORKSPACE/head/test-images" --out "$GITHUB_WORKSPACE/out-base"
+      - name: Compare
+        if: steps.check.outputs.has_bench == 'true'
+        working-directory: head
+        run: pnpm --filter hazehash-bench exec tsx src/compare.ts "$GITHUB_WORKSPACE/out-base/summary.csv" "$GITHUB_WORKSPACE/out-head/summary.csv" 2 28
+      - uses: actions/upload-artifact@v4
+        if: always() && steps.check.outputs.has_bench == 'true'
+        with:
+          name: bench-report
+          path: |
+            out-head
+            out-base

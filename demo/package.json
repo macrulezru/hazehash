@@ -1,0 +1,19 @@
+{
+  "name": "hazehash-demo",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "nuxt dev",
+    "build": "nuxt build",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "prepare-images": "node scripts/prepare-images.mjs"
+  },
+  "dependencies": {
+    "hazehash": "workspace:*",
+    "hazehash-nuxt": "workspace:*",
+    "nuxt": "^3.13.0",
+    "sharp": "^0.34.0",
+    "vue": "^3.5.0"
+  }
+}

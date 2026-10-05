@@ -1,0 +1,20 @@
+{
+  "name": "hazehash-bench",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "bench": "tsx src/run.ts",
+    "tune": "tsx src/tune.ts",
+    "perf": "tsx src/perf.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "compare": "tsx src/compare.ts",
+    "ablate": "tsx src/ablate.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "blurhash": "^2.0.5",
+    "sharp": "^0.34.0",
+    "thumbhash": "^0.1.1",
+    "tsx": "^4.19.0"
+  }
+}

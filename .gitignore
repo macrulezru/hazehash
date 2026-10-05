@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.nuxt/
+coverage/
+bench/out/
+*.log
+.DS_Store
+examples/hashes.json
+.nuxt/
+.output/
+docs/

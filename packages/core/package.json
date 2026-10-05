@@ -1,0 +1,93 @@
+{
+  "name": "hazehash",
+  "version": "0.1.0",
+  "description": "HazeHash: compact image placeholders (16-48 bytes) with OKLab DCT, alpha and aspect ratio",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=20"
+  },
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./decode": {
+      "import": {
+        "types": "./dist/decode.d.ts",
+        "default": "./dist/decode.js"
+      },
+      "require": {
+        "types": "./dist/decode.d.cts",
+        "default": "./dist/decode.cjs"
+      }
+    },
+    "./encode": {
+      "import": {
+        "types": "./dist/encode.d.ts",
+        "default": "./dist/encode.js"
+      },
+      "require": {
+        "types": "./dist/encode.d.cts",
+        "default": "./dist/encode.cjs"
+      }
+    },
+    "./canvas": {
+      "import": {
+        "types": "./dist/canvas.d.ts",
+        "default": "./dist/canvas.js"
+      },
+      "require": {
+        "types": "./dist/canvas.d.cts",
+        "default": "./dist/canvas.cjs"
+      }
+    },
+    "./node": {
+      "import": {
+        "types": "./dist/node.d.ts",
+        "default": "./dist/node.js"
+      },
+      "require": {
+        "types": "./dist/node.d.cts",
+        "default": "./dist/node.cjs"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "size": "node scripts/size.mjs",
+    "make-vectors": "tsx scripts/make-vectors.ts",
+    "fuzz": "tsx scripts/fuzz.ts"
+  },
+  "peerDependencies": {
+    "sharp": ">=0.33"
+  },
+  "peerDependenciesMeta": {
+    "sharp": {
+      "optional": true
+    }
+  },
+  "bin": {
+    "hazehash": "./dist/cli.js"
+  },
+  "devDependencies": {
+    "sharp": "^0.34.0",
+    "tsx": "^4"
+  }
+}

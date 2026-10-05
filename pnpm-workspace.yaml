@@ -1,0 +1,7 @@
+packages:
+  - 'packages/*'
+  - 'bench'
+  - 'e2e'
+  - 'e2e/nuxt-app'
+  - 'examples'
+  - 'demo'

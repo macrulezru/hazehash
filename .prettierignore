@@ -1,0 +1,8 @@
+test-images
+dist
+node_modules
+bench/out
+pnpm-lock.yaml
+scripts
+.nuxt
+.output

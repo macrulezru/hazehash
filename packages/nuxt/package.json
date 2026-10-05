@@ -1,0 +1,48 @@
+{
+  "name": "hazehash-nuxt",
+  "version": "0.1.0",
+  "description": "Nuxt module for HazeHash: component auto-registration and build-time hash generation",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=20"
+  },
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/types.d.mts",
+      "import": "./dist/module.mjs"
+    }
+  },
+  "main": "./dist/module.mjs",
+  "types": "./dist/types.d.mts",
+  "scripts": {
+    "build": "nuxt-module-build build",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@nuxt/kit": "^3.13.0",
+    "hazehash": "workspace:*",
+    "hazehash-vue": "workspace:*"
+  },
+  "peerDependencies": {
+    "nuxt": "^3.9.0",
+    "sharp": ">=0.33"
+  },
+  "peerDependenciesMeta": {
+    "sharp": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@nuxt/module-builder": "^0.8.4",
+    "@nuxt/schema": "^3.13.0",
+    "nuxt": "^3.13.0",
+    "sharp": "^0.34.0",
+    "vue": "^3.5.0"
+  }
+}
