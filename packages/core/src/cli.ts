@@ -1,44 +1,42 @@
 #!/usr/bin/env node
-import { encodeFile } from './node';
-import { toBase64Url } from './encoder/base64';
-import type { EncodeOptions } from './types';
+import pkg from '../package.json';
+import { EXIT, type Io } from './cli/io';
+import { run } from './cli/main';
 
-const USAGE = `Usage: hazehash encode <file> [--budget N] [--profile fast|default|high]
-                              [--analysis-size N] [--alpha auto|true|false] [--hex]
-
-Prints the HazeHash of an image as base64url (or hex with --hex).`;
-
-async function main(argv: string[]): Promise<number> {
-  const [command, file, ...rest] = argv;
-  if (command !== 'encode' || !file) {
-    console.error(USAGE);
-    return command === '--help' || command === '-h' ? 0 : 1;
+async function readStdin(): Promise<Uint8Array> {
+  if (process.stdin.isTTY) {
+    process.stderr.write('Reading from standard input; finish with Ctrl+D (Ctrl+Z on Windows)…\n');
   }
-  const options: EncodeOptions = {};
-  let hex = false;
-  for (let i = 0; i < rest.length; i++) {
-    const flag = rest[i];
-    if (flag === '--hex') hex = true;
-    else if (flag === '--budget') options.budget = Number(rest[++i]);
-    else if (flag === '--analysis-size') options.analysisSize = Number(rest[++i]);
-    else if (flag === '--profile') options.profile = rest[++i] as EncodeOptions['profile'];
-    else if (flag === '--alpha') {
-      const v = rest[++i];
-      options.alpha = v === 'true' ? true : v === 'false' ? false : 'auto';
-    } else {
-      console.error(`Unknown option ${flag}\n${USAGE}`);
-      return 1;
-    }
-  }
-  const bytes = await encodeFile(file, options);
-  console.log(hex ? Buffer.from(bytes).toString('hex') : toBase64Url(bytes));
-  return 0;
+  const chunks: Buffer[] = [];
+  for await (const chunk of process.stdin) chunks.push(chunk as Buffer);
+  return Buffer.concat(chunks);
 }
 
-main(process.argv.slice(2)).then(
-  (code) => process.exit(code),
-  (err: Error) => {
-    console.error(err.message);
-    process.exit(1);
+const io: Io = {
+  stdout: {
+    write: (text) => void process.stdout.write(text),
+    isTTY: Boolean(process.stdout.isTTY),
+    columns: process.stdout.columns,
+  },
+  stderr: {
+    write: (text) => void process.stderr.write(text),
+    isTTY: Boolean(process.stderr.isTTY),
+    columns: process.stderr.columns,
+  },
+  readStdin,
+  env: process.env,
+  cwd: process.cwd(),
+  platform: process.platform,
+  now: () => performance.now(),
+};
+
+// exitCode (not exit) lets pending output flush before the process ends.
+run(process.argv.slice(2), io, pkg.version).then(
+  (code) => {
+    process.exitCode = code;
+  },
+  (error: Error) => {
+    process.stderr.write(`${error.message}\n`);
+    process.exitCode = EXIT.failed;
   },
 );

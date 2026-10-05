@@ -49,6 +49,18 @@ export default defineNuxtConfig({
 });
 ```
 
+## Command line
+
+The module generates hashes for you, but the `hazehash` command is installed with it and is handy when
+you keep hashes elsewhere (a database, a CMS):
+
+```sh
+npx hazehash encode ./public/images -f json -o hashes.json
+npx hazehash info <hash>        # what is inside a hash
+```
+
+See `npx hazehash --help` and the [`hazehash` README](../core#command-line).
+
 ## Auto-imports
 
 - `useHazeHash(src)` returns a computed hash for an image URL, or `undefined`.

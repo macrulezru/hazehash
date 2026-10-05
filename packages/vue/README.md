@@ -20,6 +20,18 @@ import { PlaceholderImage } from 'hazehash-vue';
 - `prefers-reduced-motion: reduce` disables the fade.
 - An invalid hash never throws: a flat background remains and one `console.warn` is printed.
 
+## Getting hashes
+
+The component only draws hashes; create them ahead of time with the command line that comes with
+`hazehash` (a peer dependency of this package):
+
+```sh
+npm install --save-dev sharp   # lets the command read images
+npx hazehash encode ./public/images -f json -o hashes.json
+```
+
+See `npx hazehash --help`, or the [`hazehash` README](../core#command-line).
+
 Props: `hash`, `src`, `alt`, `width`, `height`, `size` (32), `fade` (300 ms).
 
 `usePlaceholder(hash, { size })` exposes `canvas` (template ref), `backgroundColor`, `aspectRatio`,
