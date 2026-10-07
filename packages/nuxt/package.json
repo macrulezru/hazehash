@@ -1,6 +1,6 @@
 {
   "name": "hazehash-nuxt",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Nuxt module for HazeHash: component auto-registration and build-time hash generation",
   "license": "MIT",
   "type": "module",
