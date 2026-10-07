@@ -1,6 +1,6 @@
 {
   "name": "hazehash-vue",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Vue 3 component and composable for HazeHash image placeholders",
   "license": "MIT",
   "type": "module",

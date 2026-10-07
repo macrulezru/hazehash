@@ -1,6 +1,6 @@
 {
   "name": "hazehash",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "HazeHash: compact image placeholders (16-48 bytes) with OKLab DCT, alpha and aspect ratio",
   "license": "MIT",
   "type": "module",
